@@ -8,7 +8,7 @@
 import { NewAppScreen } from '@react-native/new-app-screen';
 import { useEffect } from 'react';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import { SafeAreaProvider, useSafeAreaInsets,} from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets, } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 
 import { getApps } from '@react-native-firebase/app';
@@ -18,6 +18,8 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { darkTheme } from './src/theme/darkTheme';
 import { theme } from './src/theme/theme';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { createNotificationChannel } from './src/services/notificationService';
+import { requestNotificationPermission } from './src/utils/notificationPermission';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -32,18 +34,24 @@ function App() {
     }
   }, []);
 
+  // ============= # Notification Channel Setup # ==============
+  useEffect(() => {
+    requestNotificationPermission();
+    createNotificationChannel();
+  }, []);
+
   return (
     <SafeAreaProvider>
-    <Provider store={store}>
-      <PaperProvider
-        theme={isDarkMode ? darkTheme : theme}
-        settings={{ icon: props => <MaterialIcons {...props} /> }}
-      >
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'}  />
-        <AppNavigator />
-      </PaperProvider>
-    </Provider>
-  </SafeAreaProvider>
+      <Provider store={store}>
+        <PaperProvider
+          theme={isDarkMode ? darkTheme : theme}
+          settings={{ icon: props => <MaterialIcons {...props} /> }}
+        >
+          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+          <AppNavigator />
+        </PaperProvider>
+      </Provider>
+    </SafeAreaProvider>
   );
 }
 

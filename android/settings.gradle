@@ -12,5 +12,10 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
+
+         // ADD THIS
+        maven {
+            url("$rootDir/../node_modules/@notifee/react-native/android/libs")
+        }
     }
 }

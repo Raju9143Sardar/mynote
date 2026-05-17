@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, View } from 'react-native';
+import { Modal, Platform, Pressable, View } from 'react-native';
 import {
     ActivityIndicator,
     Button,
@@ -15,7 +15,7 @@ import {
     TextInput,
     useTheme
 } from 'react-native-paper';
-
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import LottieView from 'lottie-react-native';
 
 
@@ -81,20 +81,20 @@ export const InputTextPaper = ({ label, value, onChangeText, placeholder, error,
                 placeholder={placeholder}
                 mode="outlined"
                 secureTextEntry={secureTextEntry}
-                // 🔹 Theme Colors
+                //  Theme Colors
                 selectionColor={colors.primaryContainer}
                 cursorColor={colors.primary}
 
-                // 🔹 Outline colors (important)
+                //  Outline colors (important)
                 outlineColor={hasError ? colors.error : colors.outline}
                 activeOutlineColor={hasError ? colors.error : colors.primary}
 
-                // 🔹 Focus handling
+                //  Focus handling
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => { setIsFocused(false) }}
 
 
-                // 🔹 Right icon (Clear button)
+                //  Right icon (Clear button)
                 right={
                     value ? (
                         <TextInput.Icon
@@ -104,7 +104,7 @@ export const InputTextPaper = ({ label, value, onChangeText, placeholder, error,
                     ) : undefined
                 }
 
-                // 🔹 Style
+                //  Style
                 style={{
                     backgroundColor: colors.surface,
                 }}
@@ -143,11 +143,11 @@ export const InputPasswordPaper = ({ label, value, onChangeText, placeholder, er
                 mode="outlined"
                 error={!!error}
 
-                // 🔹 Theme Colors
+                //  Theme Colors
                 selectionColor={colors.primary}
                 cursorColor={colors.primary}
 
-                // 🔹 Outline colors (important)
+                //  Outline colors (important)
                 outlineColor={hasError ? colors.error : colors.outline}
                 activeOutlineColor={hasError ? colors.error : colors.primary}
 
@@ -205,7 +205,7 @@ export const InputSelectPaper = ({ label, value, onSelect, options, placeholder,
                         value={selectedLabel}
                         placeholder={placeholder}
                         mode="outlined"
-                        editable={false} // 🔒 prevent typing
+                        editable={false} //  prevent typing
 
                         selectionColor={colors.primaryContainer}
                         cursorColor={colors.primary}
@@ -252,13 +252,229 @@ export const InputSelectPaper = ({ label, value, onSelect, options, placeholder,
 };
 
 
+//###################### Date Picker react-native-paper ###########################
+export const DatePickerPaper = ({ label, value, onChange, placeholder, error }: {
+  label: string; value: Date | null; onChange: (date: Date) => void; placeholder: string; error?: string; }) => {
+  const { colors } = useTheme();
 
+  const [showPicker, setShowPicker] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const hasError = !!error;
+
+  // 🔹 Format date
+  const formatDate = (date: Date | null) => {
+    if (!date) return '';
+
+    return `${date.getDate().toString().padStart(2, '0')}/${
+      (date.getMonth() + 1).toString().padStart(2, '0')
+    }/${date.getFullYear()}`;
+  };
+
+  // Handle Date Change
+  const handleChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date,
+  ) => {
+    if (Platform.OS !== 'ios') {
+      setShowPicker(false);
+    }
+
+    if (selectedDate) {
+      onChange(selectedDate);
+    }
+  };
+
+  return (
+    <View style={{ marginBottom: 8 }}>
+      {/* Input Field */}
+      <Pressable
+        onPress={() => {
+          setShowPicker(true);
+          setIsFocused(true);
+        }}
+      >
+        <View pointerEvents="none">
+          <TextInput
+            label={label}
+            value={formatDate(value)}
+            placeholder={placeholder}
+            mode="outlined"
+            editable={false}
+
+            // Theme Colors
+            selectionColor={colors.primaryContainer}
+            cursorColor={colors.primary}
+
+            // Outline Colors
+            outlineColor={hasError ? colors.error : colors.outline}
+            activeOutlineColor={
+              hasError ? colors.error : colors.primary
+            }
+
+            // Focus handling
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+
+            // Right Icon
+            right={
+              <TextInput.Icon
+                icon="calendar-month"
+                onPress={() => setShowPicker(true)}
+              />
+            }
+
+            // Style
+            style={{
+              backgroundColor: colors.surface,
+            }}
+          />
+        </View>
+      </Pressable>
+
+      {/* Date Picker */}
+      {showPicker && (
+        <DateTimePicker
+          value={value || new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleChange}
+        />
+      )}
+
+      {/* Error Text */}
+      {hasError && (
+        <HelperText type="error" visible={true}>
+          {error}
+        </HelperText>
+      )}
+    </View>
+  );
+};
+
+//###################### Time Picker react-native-paper ###########################
+
+export const TimePickerPaper = ({ label, value, onChange, placeholder, error }
+    : { label: string; value: Date | null; onChange: (time: Date) => void; placeholder: string; error?: string; }) => {
+  const { colors } = useTheme();
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const hasError = !!error;
+
+  // Format Time
+  const formatTime = (date: Date | null) => {
+    if (!date) return '';
+
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  // Handle Time Change
+  const handleChange = (
+    event: DateTimePickerEvent,
+    selectedTime?: Date,
+  ) => {
+    if (Platform.OS !== 'ios') {
+      setShowPicker(false);
+    }
+
+    if (selectedTime) {
+      onChange(selectedTime);
+    }
+  };
+
+  return (
+    <View style={{ marginBottom: 8 }}>
+      {/* Input Field */}
+      <Pressable
+        onPress={() => {
+          setShowPicker(true);
+          setIsFocused(true);
+        }}
+      >
+        <View pointerEvents="none">
+          <TextInput
+            label={label}
+            value={formatTime(value)}
+            placeholder={placeholder}
+            mode="outlined"
+            editable={false}
+
+            // Theme Colors
+            selectionColor={colors.primaryContainer}
+            cursorColor={colors.primary}
+
+            // Outline Colors
+            outlineColor={
+              hasError
+                ? colors.error
+                : colors.outline
+            }
+            activeOutlineColor={
+              hasError
+                ? colors.error
+                : colors.primary
+            }
+
+            // Focus handling
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+
+            // Right Icon
+            right={
+              <TextInput.Icon
+                icon="access-time"
+                onPress={() =>
+                  setShowPicker(true)
+                }
+              />
+            }
+
+            // Style
+            style={{
+              backgroundColor: colors.surface,
+            }}
+          />
+        </View>
+      </Pressable>
+
+      {/* Time Picker */}
+      {showPicker && (
+        <DateTimePicker
+          value={value || new Date()}
+          mode="time"
+          is24Hour={false}
+          display={
+            Platform.OS === 'ios'
+              ? 'spinner'
+              : 'default'
+          }
+          onChange={handleChange}
+        />
+      )}
+
+      {/* Error Text */}
+      {hasError && (
+        <HelperText
+          type="error"
+          visible={true}
+        >
+          {error}
+        </HelperText>
+      )}
+    </View>
+  );
+};
 
 //#################### Radio Group react-native-paper ########################
 export const RadioGroupPaper = ({ options, value, onValueChange, error }
     : { options: { label: string; value: string }[]; value: string; onValueChange: (value: string) => void; error?: string }) => {
 
-    const { colors } = useTheme(); // ✅ added
+    const { colors } = useTheme(); //  added
     const hasError = !!error;
 
     return (
@@ -275,8 +491,8 @@ export const RadioGroupPaper = ({ options, value, onValueChange, error }
                     >
                         <RadioButton
                             value={option.value}
-                            color={colors.primary}   // ✅ selected color
-                            uncheckedColor={colors.outline} // ✅ unselected color
+                            color={colors.primary}   //  selected color
+                            uncheckedColor={colors.outline} // unselected color
                         />
 
                         <Text style={{ color: colors.onSurface }}>
@@ -302,7 +518,7 @@ export const RadioGroupPaper = ({ options, value, onValueChange, error }
 export const CheckboxPaper = ({ label, value, onValueChange, error }
     : { label: string; value: boolean; onValueChange: (value: boolean) => void; error?: string }) => {
 
-    const { colors } = useTheme(); // ✅ added
+    const { colors } = useTheme(); //  added
     const hasError = !!error;
 
     return (
@@ -317,8 +533,8 @@ export const CheckboxPaper = ({ label, value, onValueChange, error }
                 <Checkbox
                     status={value ? 'checked' : 'unchecked'}
                     onPress={() => onValueChange(!value)}
-                    color={colors.primary} // ✅ theme color
-                    uncheckedColor={colors.outline} // ✅ optional
+                    color={colors.primary} //  theme color
+                    uncheckedColor={colors.outline} //  optional
                 />
 
                 <Text style={{ color: colors.onSurface }}>
@@ -354,9 +570,9 @@ export const ButtonPaper = ({ title, onPress, disabled, }
                 marginTop: 5,
                 marginBottom: 5,
                 marginHorizontal: 10,
-                backgroundColor: disabled ? colors.onSurfaceDisabled : colors.primary, // ✅ theme color
+                backgroundColor: disabled ? colors.onSurfaceDisabled : colors.primary, //  theme color
             }}
-            textColor={colors.surface} // ✅ text color
+            textColor={colors.surface} //  text color
         >
             {title}
         </Button>
@@ -372,11 +588,11 @@ export const FabPaper = ({ icon, onPress, label, buttonSize, disabled, }
     return (
         <FAB
             icon={icon}
-            label={label} // 👈 shows text if provided (extended FAB)
+            label={label} //  shows text if provided (extended FAB)
             onPress={onPress}
             disabled={disabled}
             size={buttonSize ? undefined : 'medium'} // default size
-            customSize={buttonSize} // 👈 exact size control
+            customSize={buttonSize} //  exact size control
             style={{
                 position: 'absolute',
                 right: 20,
@@ -422,7 +638,7 @@ export const SnackbarPaper = ({ visible, onDismiss, message, type }
 };
 
 
-//##################### Card react-native-paper ###########################
+//##################### Data Not Found react-native-paper ###########################
 export const DataNotFoundPaper = ({ source, loop }: { source: any; loop?: boolean }) => {
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>

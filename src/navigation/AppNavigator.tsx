@@ -7,6 +7,7 @@ import TaskListScreen from '../screens/task/TaskListScreen';
 import AddTaskScreen from '../screens/task/AddTaskScreen';
 import { useAppSelector } from '../hooks/hooks';
 import { AppScreens } from './AppScreens';
+import EditTaskScreen from '../screens/task/EditTaskScreen';
 
 
 
@@ -30,6 +31,10 @@ export default function AppNavigator() {
           <Stack.Screen
              name="AddTask"
             component={AddTaskScreen}
+          />
+          <Stack.Screen
+             name="EditTask"
+            component={EditTaskScreen}
           />
           
           </>

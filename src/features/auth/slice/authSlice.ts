@@ -39,7 +39,15 @@ export const signupUser = createAsyncThunk(
 
       setToken(token);
 
-      return response.user;
+      const user = response.user;
+
+      return {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      };
+
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error.message,
@@ -71,7 +79,14 @@ export const loginUser = createAsyncThunk(
 
       setToken(token);
 
-      return response.user;
+      const user = response.user;
+
+      return {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
         error.message,
